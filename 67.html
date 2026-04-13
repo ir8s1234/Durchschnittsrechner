@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Durchschnittsrechner – Italienische Noten</title>
+  <style>
+    :root {
+      --bg-dark: #05060a;
+      --bg-card: #0b1020;
+      --accent: #1e88e5;
+      --accent-soft: #1565c0;
+      --accent-light: #64b5f6;
+      --text-main: #e3f2fd;
+      --text-muted: #90a4ae;
+      --error: #ef5350;
+      --border: #1a237e;
+      --input-bg: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #0d47a1 0, #02030a 45%, #000000 100%);
+      color: var(--text-main);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+      background: linear-gradient(145deg, #050814, #05060a);
+      border-radius: 18px;
+      padding: 24px 22px 20px;
+      box-shadow:
+        0 0 0 1px rgba(33, 150, 243, 0.25),
+        0 18px 45px rgba(0, 0, 0, 0.85);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(33, 150, 243, 0.18), transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(21, 101, 192, 0.18), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(100, 181, 246, 0.4);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-light);
+      background: radial-gradient(circle at top, rgba(33, 150, 243, 0.2), transparent 60%);
+    }
+
+    .inputs {
+      background: rgba(5, 10, 25, 0.9);
+      border-radius: 14px;
+      padding: 14px 12px;
+      border: 1px solid rgba(26, 35, 126, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .row label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input[type="number"] {
+      background: var(--input-bg);
+      border-radius: 10px;
+      border: 1px solid rgba(55, 71, 79, 0.9);
+      padding: 6px 9px;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.4);
+      background: #0b1220;
+    }
+
+    .remove-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+
+    .remove-btn:hover {
+      color: var(--error);
+      background: rgba(239, 83, 80, 0.08);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      gap: 8px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 7px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 500;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      color: #e3f2fd;
+      box-shadow: 0 8px 18px rgba(33, 150, 243, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(33, 150, 243, 0.6);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent-light);
+      border: 1px solid rgba(100, 181, 246, 0.5);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(21, 101, 192, 0.18);
+    }
+
+    .btn span.icon {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .result-card {
+      margin-top: 16px;
+      padding: 12px 12px 10px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top left, rgba(33, 150, 243, 0.25), transparent 60%),
+                  radial-gradient(circle at bottom right, rgba(21, 101, 192, 0.25), transparent 60%);
+      border: 1px solid rgba(100, 181, 246, 0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .result-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .result-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(227, 242, 253, 0.8);
+    }
+
+    .result-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .result-extra {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border: 1px solid rgba(227, 242, 253, 0.4);
+      color: #e3f2fd;
+      background: rgba(5, 10, 25, 0.7);
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .badge-good {
+      border-color: rgba(129, 199, 132, 0.8);
+      color: #c8e6c9;
+      background: rgba(27, 94, 32, 0.35);
+    }
+
+    .badge-medium {
+      border-color: rgba(255, 241, 118, 0.8);
+      color: #fff9c4;
+      background: rgba(245, 127, 23, 0.35);
+    }
+
+    .badge-bad {
+      border-color: rgba(239, 83, 80, 0.9);
+      color: #ffcdd2;
+      background: rgba(183, 28, 28, 0.45);
+    }
+
+    .error {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--error);
+      min-height: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title-block">
+        <h1>Durchschnitt italienischer Noten</h1>
+        <p class="subtitle">Gib die Noten (0–10) und optional das Gewicht ein.</p>
+      </div>
+      <div class="chip">Rechner</div>
+    </div>
+
+    <div class="inputs" id="rows"></div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" id="addRow">
+        <span class="icon">＋</span>
+        <span>Neue Note</span>
+      </button>
+      <button class="btn btn-primary" id="calc">
+        <span class="icon">⟳</span>
+        <span>Durchschnitt berechnen</span>
+      </button>
+    </div>
+
+    <div class="result-card">
+      <div class="result-info">
+        <div class="result-label">Aktueller Durchschnitt</div>
+        <div class="result-value" id="avg">–</div>
+        <div class="result-extra" id="details">Keine Noten eingegeben.</div>
+      </div>
+      <div class="badge" id="badge">–</div>
+    </div>
+
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    const rowsContainer = document.getElementById("rows");
+    const addRowBtn = document.getElementById("addRow");
+    const calcBtn = document.getElementById("calc");
+    const avgEl = document.getElementById("avg");
+    const detailsEl = document.getElementById("details");
+    const badgeEl = document.getElementById("badge");
+    const errorEl = document.getElementById("error");
+
+    function createRow() {
+      const row = document.createElement("div");
+      row.className = "row";
+
+      const fieldGrade = document.createElement("div");
+      fieldGrade.className = "field";
+      const labelGrade = document.createElement("label");
+      labelGrade.textContent = "Note (0–10)";
+      const inputGrade = document.createElement("input");
+      inputGrade.type = "number";
+      inputGrade.min = "0";
+      inputGrade.max = "10";
+      inputGrade.step = "0.1";
+      inputGrade.placeholder = "z. B. 7.5";
+      fieldGrade.appendChild(labelGrade);
+      fieldGrade.appendChild(inputGrade);
+
+      const fieldWeight = document.createElement("div");
+      fieldWeight.className = "field";
+      const labelWeight = document.createElement("label");
+      labelWeight.textContent = "Gewicht";
+      const inputWeight = document.createElement("input");
+      inputWeight.type = "number";
+      inputWeight.min = "0";
+      inputWeight.step = "1";
+      inputWeight.placeholder = "z. B. 1";
+      fieldWeight.appendChild(labelWeight);
+      fieldWeight.appendChild(inputWeight);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "remove-btn";
+      removeBtn.textContent = "Entfernen";
+      removeBtn.addEventListener("click", () => {
+        rowsContainer.removeChild(row);
+        if (!rowsContainer.children.length) {
+          createRow();
+        }
+      });
+
+      row.appendChild(fieldGrade);
+      row.appendChild(fieldWeight);
+      row.appendChild(removeBtn);
+
+      rowsContainer.appendChild(row);
+    }
+
+    function classifyAverage(avg) {
+      if (isNaN(avg)) return { text: "–", className: "" };
+      if (avg >= 8) return { text: "Sehr gut", className: "badge-good" };
+      if (avg >= 6) return { text: "Genügend", className: "badge-medium" };
+      return { text: "Nicht genügend", className: "badge-bad" };
+    }
+
+    function calculateAverage() {
+      errorEl.textContent = "";
+      let sumWeighted = 0;
+      let sumWeights = 0;
+      let count = 0;
+
+      const rows = rowsContainer.querySelectorAll(".row");
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll("input");
+        const grade = parseFloat(inputs[0].value.replace(",", "."));
+        let weight = parseFloat(inputs[1].value.replace(",", "."));
+
+        if (!isNaN(grade)) {
+          if (grade < 0 || grade > 10) {
+            errorEl.textContent = "Noten müssen zwischen 0 und 10 liegen.";
+            return;
+          }
+          if (isNaN(weight) || weight <= 0) {
+            weight = 1;
+          }
+          sumWeighted += grade * weight;
+          sumWeights += weight;
+          count++;
+        }
+      });
+
+      if (errorEl.textContent) return;
+
+      if (count === 0 || sumWeights === 0) {
+        avgEl.textContent = "–";
+        detailsEl.textContent = "Keine gültigen Noten eingegeben.";
+        badgeEl.textContent = "–";
+        badgeEl.className = "badge";
+        return;
+      }
+
+      const avg = sumWeighted / sumWeights;
+      const avgRounded = Math.round(avg * 100) / 100;
+
+      avgEl.textContent = avgRounded.toFixed(2).replace(".", ",");
+      detailsEl.textContent = `Basierend auf ${count} Note(n), Gesamtgewicht ${sumWeights}.`;
+
+      const classification = classifyAverage(avg);
+      badgeEl.textContent = classification.text;
+      badgeEl.className = "badge " + classification.className;
+    }
+
+    addRowBtn.addEventListener("click", () => createRow());
+    calcBtn.addEventListener("click", () => calculateAverage());
+
+    // Start mit 3 Zeilen
+    createRow();
+    createRow();
+    createRow();
+  </script>
+</body>
+</html>
